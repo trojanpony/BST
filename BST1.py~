@@ -1,0 +1,56 @@
+# need a method for numLeaves
+# need a method for numHalfNodes
+# need a method for numFullNodes
+# need a method for levelOrder traversal, lists the root then nodes at depth 1 followed by nodes at depth 2 and so on
+
+# need a method for insert
+# need a method for delete
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+class BST:
+    def __init__(self, value):
+        self.root = Node(value) 
+
+    def is_leaf(self, node):
+        if node.left == None and node.right == None:
+            return True
+        return False
+
+    def insert(self, value):
+        root = self.root
+        if root == None:
+            return
+        if value < root.value:
+            print("Value less than root")
+            # go left
+            if root.left == None:
+                print("Left node = none")
+                root.left = Node(value)
+                return
+            root = root.left
+            return
+        if value > root.value:
+            print("Value greater than root")
+            # go right
+            if root.right == None:
+                print("Right node = none")
+                root.right = Node(value)
+                return
+            print("Setting root to to root.right")
+            root = root.right
+            self.insert(value)
+            return
+
+
+T = BST(3)
+
+print("Root value", T.root.value)
+
+T.insert(5)
+T.insert(8)
+
+

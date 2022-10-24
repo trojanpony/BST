@@ -1,24 +1,214 @@
+"""
+Program Title: XXXXXXXXXXXXXXXXXX (such as: List operations) 
+Author: XXXXX XXXXXX  
+Class: CSCI3320-850, Fall 2022  
+Assignment #3 
+Objective: The purpose of this assignment is to implement a binary search tree
+making use of methods to count the num of leaves, the num of half nodes, and full nodes
+as well as a method to print the level order traversal of the tree.
+"""
 
-# Need a user interface with 8 options
-# 1) Insert nodes
-# 2) Print tree
-# 3) Print number of leaves
-# 4) Print number of half nodes in T
-# 5) Print number of full nodes in T
-# 6) Print level the level order traversal of the tree
-# 7) Delete node with a specific value
-# 8) Exit program
+# Basic BST methods taken from keon/algorithms on github
+class Node(object): # Node class
+    def __init__(self, data):
+        self.data = data
+        self.left = None
+        self.right = None
 
-print("Enter a choice [1-8] from menu below:")
-print("1) Insert nodes")
-print("2) Print tree")
-print("3) Print number of leaves")
-print("4) Print number of half nodes in T")
-print("5) Print number of full nodes in T")
-print("6) Print level the level order traversal of the tree")
-print("7) Delete node with a specific value")
-print("8) Exit program")
+class BST(object): # BST class implemented basic methods for BST as well as assignment specific methods
+    def __init__(self):
+        self.root = None
 
-user_selection = int(input("Enter your choice: "))
+    def get_root(self):
+        return self.root
 
+    def size(self):
+        return self.recur_size(self.root)
 
+    def recur_size(self, root):
+        if root is None:
+            return 0
+        else:
+            return 1 + self.recur_size(root.left) + self.recur_size(root.right)
+
+    def search(self, data):
+        return self.recur_search(self.root, data)
+
+    def recur_search(self, root, data):
+        if root is None:
+            return False
+        if root.data == data:
+            return True
+        elif data > root.data:     # Go to right root
+            return self.recur_search(root.right, data)
+        else:                      # Go to left root
+            return self.recur_search(root.left, data)
+
+    def insert(self, data):
+        if self.root:
+            return self.recur_insert(self.root, data)
+        else:
+            self.root = Node(data)
+            return True
+
+    def recur_insert(self, root, data):
+        if root.data == data:      # The data is already there
+            return False
+        elif data < root.data:     # Go to left root
+            if root.left:          # If left root is a node
+                return self.recur_insert(root.left, data)
+            else:                  # left root is a None
+                root.left = Node(data)
+                return True
+        else:                      # Go to right root
+            if root.right:         # If right root is a node
+                return self.recur_insert(root.right, data)
+            else:
+                root.right = Node(data)
+                return True
+
+    def inorder(self, root): 
+        if root:
+            self.inorder(root.left)
+            print(str(root.data), end = ' ')
+            self.inorder(root.right)
+
+    # Assignment specific methods written by student
+    def leaves(self, root): # This method counts the number of leaves in the tree
+        if root is None:
+            return 0
+        if root.left is None and root.right is None:
+            return 1
+        return self.leaves(root.left) + self.leaves(root.right)
+
+    def half_nodes(self, root): # This method counts the number of half nodes in the tree
+        if root is None:
+            return 0
+        if root.left is None and root.right is not None:
+            return 1 + self.half_nodes(root.right)
+        if root.left is not None and root.right is None:
+            return 1 + self.half_nodes(root.left)
+        return self.half_nodes(root.left) + self.half_nodes(root.right)
+
+    # Print the number of full nodes
+    def full_nodes(self, root): # This method counts the number of full nodes in the tree
+        if root is None:
+            return 0
+        if root.left is not None and root.right is not None:
+            return 1 + self.full_nodes(root.left) + self.full_nodes(root.right)
+        return self.full_nodes(root.left) + self.full_nodes(root.right)
+
+    # Level order traversal designed from geeksforgeeks https://www.geeksforgeeks.org/level-order-tree-traversal/ and modified to work with program
+    # Print level order traversal of the tree
+    def level_order(self, root): # method to print level order traversal of the tree
+        h = self.height(root)
+        for i in range(1, h + 1):
+            self.print_current_level(root, i)
+            print()
+
+    def print_current_level(self, root, level): # helper method for the print level order, that does the actual printing
+        if root is None:
+            return
+        if level == 1:
+            print(root.data, end = ' ')
+        elif level > 1:
+            self.print_current_level(root.left, level - 1)
+            self.print_current_level(root.right, level - 1)
+
+    def height(self, root): # another helper method for calculating the height of the subtree
+        if root is None:
+            return 0
+        else:
+            lheight = self.height(root.left)
+            rheight = self.height(root.right)
+            if lheight > rheight:
+                return lheight + 1
+            else:
+                return rheight + 1
+
+    # Delete a node from the tree from the given key
+    def delete(self, data):
+        return self.recur_delete(self.root, data)
+    
+    def recur_delete(self, root, data):
+        if root is None:
+            return root
+        if data < root.data:
+            root.left = self.recur_delete(root.left, data)
+        elif data > root.data:
+            root.right = self.recur_delete(root.right, data)
+        else:
+            if root.left is None:
+                temp = root.right
+                root = None
+                return temp
+            elif root.right is None:
+                temp = root.left
+                root = None
+                return temp
+            temp = self.min_value(root.right)
+            root.data = temp.data
+            root.right = self.recur_delete(root.right, temp.data)
+        return root
+
+    def min_value(self, root):
+        current = root
+        while current.left is not None:
+            current = current.left
+        return current
+
+menu = ['Insert nodes (comma seperated values)', 'Print tree (in-order)', 'Print number of leaves in T', 'Print the number of half nodes in T', 'Print the number of full nodes in T', 'Print the level order traversal of the tree', 'Delete node with a specific value', 'Exit program' ]
+choice = 0
+T = BST()
+
+while choice < (len(menu)):
+    print(f'\n>> Enter a choice from 1 to {len(menu)}\n')
+    for i in range(len(menu)):
+        print(f'{i+1}) {menu[i]}')
+    print()
+    choice = int(input())
+
+    if choice >= (len(menu)): # choice is 8 (exit program) or greater which is invalid, in either case quit the program
+        print('\nOkay, bye!')
+        break
+
+    if choice < 1: # Choice is less than 1, quit the program and print an error message
+        print('\nInvalid option, try again')
+        break
+
+    # We know the choice must be 1-7
+    # choice - 1 will give us the index of the menu item that is selected
+
+    index = choice - 1 # index of the menu item
+    print(f'\n{menu[index]}\n') # print the selection
+    
+    if choice == 1: # Insert nodes
+        user_data = [int(x) for x in input().split(',')]
+        for data in user_data:
+            T.insert(data)
+
+    elif choice == 2: # Print tree (in-order)
+        if T.root == None:
+            print('Please insert a node first')
+        else:
+            T.inorder(T.root)
+            print() # just to add a newline
+
+    elif choice == 3: # Print number of leaves in T
+        print(T.leaves(T.root))
+
+    elif choice == 4: # Print the number of half nodes in T
+        print(T.half_nodes(T.root))
+
+    elif choice == 5:
+        print(T.full_nodes(T.root))
+
+    elif choice == 6:
+        T.level_order(T.root)
+        print()
+        
+
+    else: # choice must be 7
+        data = int(input('Enter the value of the node to delete: '))
+        T.delete(data)
+    
